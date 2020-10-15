@@ -20,21 +20,12 @@ struct Rectangle{
         this->max = max;
         this->stride = stride;
     }
-    void moveToY(int y){
-        int diffY = max->y-min->y;
-        int diffX = max->x-min->x;
-        this->min->y = y;
-        this->min->x = y*stride->x/stride->y;
-        this->max->y = min->y + diffY;
-        this->max->x = min->x + diffX;
-        cout<<"";
-    }
-    void moveNTimes(int n ){
-        int newY = min->y + stride->y;
-        moveToY(newY);
-    }
+
     Vector2I * getMinPos(){
         return min;
+    }
+    Vector2I * getSize(){
+        return new Vector2I(abs(min->x - max->x), abs(min->y - max->y));
     }
     Vector2I * getMaxPos(){
         return max;
@@ -102,37 +93,18 @@ int main() {
     args = split(line, ' ');
     Vector2I point(stoi(args[0]), stoi(args[1]));
     Rectangle * movesBox = new Rectangle(new Vector2I(0, 0), max, endPoint);
-    int maxShift = time / timeUsed;
-    movesBox->moveNTimes(maxShift);
-
+    int maxShift = time/timeUsed;//without the remaining small part
+    int leftForMove = time % timeUsed;
     int touches = 0;
-    if(movesBox->getMinPos()->x <= point.x && movesBox->getMaxPos()->x >= point.x){
-        Vector2I * checkingPoint = new Vector2I(movesBox->getMinPos()->x, movesBox->getMinPos()->y);
-        for(int i = 0; i < moves.size(); i ++){
-            int move = moves.at(i);
-            Vector2I * prevPoint = new Vector2I(checkingPoint->x, checkingPoint->y);
-            switch (pivot) {
-                case 0:
-                    checkingPoint->y += move;
-                    break;
-                case 1:
-                    checkingPoint->x += move;
-                    break;
-                case 2:
-                    checkingPoint->y -= move;
-                    break;
-                case 3:
-                    checkingPoint->x -= move;
-                    break;
-            }
-            if((prevPoint->y <= point.y && checkingPoint->y >= point.y) || (prevPoint->y >= point.y && checkingPoint->y <= point.y) ||
-                    (prevPoint->x <= point.x && checkingPoint->x >= point.x) || (prevPoint->x >= point.x && checkingPoint->x <= point.x)){
-                touches ++;
-            }
-            pivot += 1;
-            pivot %= 4;
-        }
+    if(movesBox->stride->y != 0) {
+        float a = (((float) movesBox->stride->x) / ((float) movesBox->stride->y));
+        int x = (point.y+a*point.x)/2*a;
+        int x1 = (point.y + a * point.x + movesBox->max->x)/2*a;
+        int x2 = (point.y + a * point.x - movesBox->max->y)/2*a;;
+        Vector2I p (x,  a*x);
+        Vector2I p1(x1, a*x1 - max->x);
+        Vector2I p2(x2, a*x2 + max->y);
+        //get the distances
     }
-    cout<<touches;
     return 0;
 }
