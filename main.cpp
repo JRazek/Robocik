@@ -53,6 +53,9 @@ struct Rectangle{
         }
         return strideN;
     }
+    int getNCycleStartingPivot(int n){
+        return n % (endingPivot+1);
+    }
     Vector2f * getMinPos(){
         return min;
     }
@@ -64,6 +67,12 @@ struct Rectangle{
     }
     bool pointBelongs(Vector2f point){
         return (min->x <= point.x && max->x >= point.x && min->y <= point.y && max->y >= point.y);
+    }
+    void move(Vector2f * v){
+        this->min->x += v->x;
+        this->max->x += v->x;
+        this->min->y += v->y;
+        this->max->y += v->y;
     }
 };
 vector<string> split(string str, char divider){
@@ -133,6 +142,16 @@ int main() {
     Vector2f point(stoi(args[0]), stoi(args[1]));
     Vector2f * firstStride = new Vector2f(endPoint->x, endPoint->y);
     Rectangle * movesBox = new Rectangle(new Vector2f(0,0), max, firstStride, endingPivot);
+    int nCycle = 0;
+    int leftCycles = time / timePerCycle;
+    int leftBatteryAfterLastCycle = time % timePerCycle;
+    while(nCycle <= leftCycles){
+        movesBox->move(movesBox->getNStride(nCycle));
+        if(movesBox->pointBelongs(point)){
 
+        }
+        nCycle++;
+    }
+    cout<<movesBox->getNCycleStartingPivot(1);
     return 0;
 }
