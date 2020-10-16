@@ -32,6 +32,15 @@ struct Rectangle{
     Vector2f * getMaxPos(){
         return max;
     }
+    void moveOriginToY(float y){
+        float a = stride->y/stride->x;
+        float height = max->y-min->y;
+        float width = max->x-min->x;
+        min->x = y/a;
+        min->y = y;
+        max->y = min->y + height;
+        max->x = max->x + width;
+    }
 };
 vector<string> split(string str, char divider){
     vector<string> result;
@@ -60,14 +69,14 @@ int main() {
     args = split(line, ' ');
     Vector2f * max = new Vector2f(0, 0);
     Vector2f * endPoint = new Vector2f(0, 0);
-    int timeUsed = 0;
+    int timePerCycle = 0;
     for(int i = 0; i < movesCount; i ++){
         int move = stoi(args[i]);
-        if(timeUsed + move + 1 > time){
+        if(timePerCycle + move + 1 > time){
             break;
         }
         moves.push_back(move);
-        timeUsed += move + 1;
+        timePerCycle += move + 1;
         switch (pivot) {
             case 0:
                 endPoint->y += move;
@@ -95,11 +104,8 @@ int main() {
     args = split(line, ' ');
     Vector2f point(stoi(args[0]), stoi(args[1]));
     Rectangle * movesBox = new Rectangle(new Vector2f(0, 0), max, endPoint);
-    int maxShift = time/timeUsed;//without the remaining small part
-    int leftForMove = time % timeUsed;
-    int touches = 0;
 
-    Vector2f *shiftPos = new Vector2f(0,0);
+    Vector2f *shiftVector = nullptr;
     if(movesBox->stride->x != 0 && movesBox->stride->y != 0) {
         float a = (movesBox->stride->y / movesBox->stride->x);
         float x = (point.y + a*point.x)/(2*a);
@@ -115,21 +121,37 @@ int main() {
         float dToP2 = (pow(p.x - p2.x, 2) + pow(p.y - p2.y, 2));
         if((point.x >= p.x && distToPointSquared <= dToP1) || (point.x <= p.x && distToPointSquared <= dToP2)){
             //vector of movement as shift to pos
+            shiftVector = new Vector2f(point.y/a, point.y);
         }
 
-    }else if(movesBox->stride->x == 0 && movesBox->stride->y != 0){
+    }
+    else if(movesBox->stride->x == 0 && movesBox->stride->y != 0){
         if((point.x >= 0 && movesBox->max->x >= point.x) || (point.x <= 0 && movesBox->max->x <= point.x)){
-            cout<<"im here2";
+            shiftVector = new Vector2f(0, point.y);
         }
-    } else if(movesBox->stride->y == 0 && movesBox->stride->x != 0){
+    }
+    else if(movesBox->stride->y == 0 && movesBox->stride->x != 0){
         if((point.y >= 0 && movesBox->max->y >= point.y) || (point.y <= 0 && movesBox->max->y <= point.y)){
-            cout<<"im here3";
+            shiftVector = new Vector2f(point.x, 0);
         }
-    }else{
+    }
+    else{
         if(((point.y >= 0 && movesBox->max->y >= point.y) || (point.y <= 0 && movesBox->max->y <= point.y)) &&
             ((point.x >= 0 && movesBox->max->x >= point.x) || (point.x <= 0 && movesBox->max->x <= point.x))){
-            cout<<"im here4";
+            shiftVector = new Vector2f(0, 0);
         }
+    }
+    int leftForMove = time % timePerCycle;
+    int maxCycles = time / timePerCycle;
+    int touches = 0;
+    if(shiftVector != nullptr){
+        Vector2f * maxVectorMove = new Vector2f(movesBox->stride->x * maxCycles, movesBox->stride->y * maxCycles);
+        if(maxVectorMove->x >= shiftVector->x && maxVectorMove->y >= shiftVector->y){
+            movesBox->moveOriginToY(shiftVector->y);
+            cout<<"ok";
+        }
+    }else{
+        cout<<0;
     }
     return 0;
 }
