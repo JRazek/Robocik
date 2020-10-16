@@ -32,12 +32,11 @@ struct Rectangle{
     Vector2f * getMaxPos(){
         return max;
     }
-    void moveOriginToY(float y){
-        float a = stride->y/stride->x;
+    void shit(Vector2f * shift){
         float height = max->y-min->y;
         float width = max->x-min->x;
-        min->x = y/a;
-        min->y = y;
+        min->x = shift->x;
+        max->y = shift->y;
         max->y = min->y + height;
         max->x = max->x + width;
     }
@@ -147,7 +146,7 @@ int main() {
     if(shiftVector != nullptr){
         Vector2f * maxVectorMove = new Vector2f(movesBox->stride->x * maxCycles, movesBox->stride->y * maxCycles);
         if(maxVectorMove->x >= shiftVector->x && maxVectorMove->y >= shiftVector->y){
-            movesBox->moveOriginToY(shiftVector->y);
+            movesBox->shit(shiftVector);
             cout<<"ok";
         }
     }else{
