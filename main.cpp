@@ -32,13 +32,18 @@ struct Rectangle{
     Vector2f * getMaxPos(){
         return max;
     }
-    void shit(Vector2f * shift){
-        float height = max->y-min->y;
-        float width = max->x-min->x;
+    void changePos(Vector2f * shift){
+        float height = max->y - min->y;
+        float width = max->x - min->x;
         min->x = shift->x;
-        max->y = shift->y;
+        min->y = shift->y;
         max->y = min->y + height;
         max->x = max->x + width;
+    }
+    bool pointBelongs(Vector2f point){
+        if(min->x <= point.x && max->x >= point.x && min->y <= point.y && max->y >= point.y){
+            cout<<"im here";
+        }
     }
 };
 vector<string> split(string str, char divider){
@@ -104,53 +109,28 @@ int main() {
     Vector2f point(stoi(args[0]), stoi(args[1]));
     Rectangle * movesBox = new Rectangle(new Vector2f(0, 0), max, endPoint);
 
-    Vector2f *shiftVector = nullptr;
-    if(movesBox->stride->x != 0 && movesBox->stride->y != 0) {
-        float a = (movesBox->stride->y / movesBox->stride->x);
-        float x = (point.y + a*point.x)/(2*a);
-        float x1 = (point.y + a * point.x + movesBox->max->x*a)/(2*a);
-        float x2 = (point.y + a*point.x - movesBox->max->y)/(2*a);
+    Vector2f * cycleVector = movesBox->stride;
 
-        Vector2f p (x, a * x);
-        Vector2f p1(x1, a * x1 - movesBox->max->x * a);
-        Vector2f p2(x2, a * x2 + movesBox->max->y);
-        //get the distances
-        float distToPointSquared = pow(p.x - point.x, 2) + pow(p.y - point.y, 2);
-        float dToP1 = (pow(p.x - p1.x, 2) + pow(p.y - p1.y, 2));
-        float dToP2 = (pow(p.x - p2.x, 2) + pow(p.y - p2.y, 2));
-        if((point.x >= p.x && distToPointSquared <= dToP1) || (point.x <= p.x && distToPointSquared <= dToP2)){
-            //vector of movement as shift to pos
-            shiftVector = new Vector2f(point.y/a, point.y);
-        }
-
-    }
-    else if(movesBox->stride->x == 0 && movesBox->stride->y != 0){
-        if((point.x >= 0 && movesBox->max->x >= point.x) || (point.x <= 0 && movesBox->max->x <= point.x)){
-            shiftVector = new Vector2f(0, point.y);
-        }
-    }
-    else if(movesBox->stride->y == 0 && movesBox->stride->x != 0){
-        if((point.y >= 0 && movesBox->max->y >= point.y) || (point.y <= 0 && movesBox->max->y <= point.y)){
-            shiftVector = new Vector2f(point.x, 0);
-        }
-    }
-    else{
-        if(((point.y >= 0 && movesBox->max->y >= point.y) || (point.y <= 0 && movesBox->max->y <= point.y)) &&
-            ((point.x >= 0 && movesBox->max->x >= point.x) || (point.x <= 0 && movesBox->max->x <= point.x))){
-            shiftVector = new Vector2f(0, 0);
-        }
-    }
-    int leftForMove = time % timePerCycle;
     int maxCycles = time / timePerCycle;
+    Vector2f * maxMove = new Vector2f(cycleVector->x * maxCycles, cycleVector->y * maxCycles);
+
+    int destOriginY = 0;
+    if(cycleVector->y != 0)
+        destOriginY = point.y - movesBox->getSize()->y;
+    int destOriginX = 0;
+    if(cycleVector->x != 0)
+        destOriginX = destOriginY/(cycleVector->y/cycleVector->x);
+
     int touches = 0;
-    if(shiftVector != nullptr){
-        Vector2f * maxVectorMove = new Vector2f(movesBox->stride->x * maxCycles, movesBox->stride->y * maxCycles);
-        if(maxVectorMove->x >= shiftVector->x && maxVectorMove->y >= shiftVector->y){
-            movesBox->shit(shiftVector);
-            cout<<"ok";
+    int timeLeft = time;
+    Vector2f * neededMove = new Vector2f(destOriginX, destOriginY);
+    if(maxMove->x - neededMove->x >= 0 && maxMove->x*neededMove->x >= 0
+        && maxMove->y - neededMove->y >= 0 && maxMove->y*neededMove->y >= 0){
+        movesBox->changePos(neededMove);
+        if(movesBox->pointBelongs(point)){
+            
         }
-    }else{
-        cout<<0;
     }
+    cout<<touches;
     return 0;
 }
