@@ -19,11 +19,11 @@ struct Rectangle{
     Vector2f * size;
     Vector2f * firstStride;
     int endingPivot;
-    Rectangle(Vector2f * min, Vector2f * max, Vector2f * stride, int endingPivot){
+    Rectangle(Vector2f * min, Vector2f * max,int endingPivot){
         this->min = min;
         this->max = max;
         this->size = new Vector2f(max->x - min->x, max->y - min->y);
-        this->firstStride = stride;
+       // this->firstStride = stride;
         this->endingPivot = endingPivot;
     }
     Vector2f * getNStride(int n){
@@ -54,7 +54,12 @@ struct Rectangle{
         return strideN;
     }
     int getNCycleStartingPivot(int n){
-        return n % (endingPivot+1);
+        switch (endingPivot) {
+            case 0: return 0;
+            case 1: return n%4;
+            case 2: return (n%2)*2;
+            case 3: return 3 - (n+3)%4;
+        }
     }
     Vector2f * getMinPos(){
         return min;
@@ -93,8 +98,8 @@ int main() {
     string line;
     getline(cin, line);
     vector<string> args = split(line, ' ');
-    int movesCount = stoi(args[0]);
-    int time = stoi(args[1]);
+    long int movesCount = stoll(args[0]);
+    long int time = stoll(args[1]);
     int pivot = 0;
 
     vector<int> moves;
@@ -103,55 +108,10 @@ int main() {
     Vector2f * max = new Vector2f(0, 0);
     Vector2f * endPoint = new Vector2f(0, 0);
     int timePerCycle = 0;
-    int endingPivot;
-    for(int i = 0; i < movesCount; i ++){
-        int move = stoi(args[i]);
-        if(timePerCycle + move + 1 > time){
-            endingPivot = pivot;
-            break;
-        }
-        moves.push_back(move);
-        timePerCycle += move + 1;
-        switch (pivot) {
-            case 0:
-                endPoint->y += move;
-                break;
-            case 1:
-                endPoint->x += move;
-                break;
-            case 2:
-                endPoint->y -= move;
-                break;
-            case 3:
-                endPoint->x -= move;
-                break;
-        }
-        if(endPoint->x > max->x){
-            max->x = endPoint->x;
-        }
-        if(endPoint->y > max->y){
-            max->y = endPoint->y;
-        }
-        pivot += 1;
-        pivot %= 4;
-        if(i == movesCount -1)
-            endingPivot = pivot;
-    }
-    getline(cin, line);
-    args = split(line, ' ');
-    Vector2f point(stoi(args[0]), stoi(args[1]));
-    Vector2f * firstStride = new Vector2f(endPoint->x, endPoint->y);
-    Rectangle * movesBox = new Rectangle(new Vector2f(0,0), max, firstStride, endingPivot);
-    int nCycle = 0;
-    int leftCycles = time / timePerCycle;
-    int leftBatteryAfterLastCycle = time % timePerCycle;
-    while(nCycle <= leftCycles){
-        movesBox->move(movesBox->getNStride(nCycle));
-        if(movesBox->pointBelongs(point)){
+    int endingPivot = (movesCount) % 4;//pivot that is the start of the next cycle
+    Rectangle * movesBox = new Rectangle(new Vector2f(0,0), max, endingPivot);
+    cout<<endingPivot<<"\n";
+    cout<<movesBox->getNCycleStartingPivot(5);
 
-        }
-        nCycle++;
-    }
-    cout<<movesBox->getNCycleStartingPivot(1);
     return 0;
 }
