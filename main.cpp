@@ -98,8 +98,9 @@ int main() {
     int maxShift = time/timeUsed;//without the remaining small part
     int leftForMove = time % timeUsed;
     int touches = 0;
-    if(movesBox->stride->y != 0) {
-        float a = (movesBox->stride->x / movesBox->stride->y);
+
+    if(movesBox->stride->x != 0 && movesBox->stride->y != 0) {
+        float a = (movesBox->stride->y / movesBox->stride->x);
         float x = (point.y + a*point.x)/(2*a);
         float x1 = (point.y + a * point.x + movesBox->max->x*a)/(2*a);
         float x2 = (point.y + a*point.x - movesBox->max->y)/(2*a);
@@ -109,11 +110,14 @@ int main() {
         Vector2f p2(x2, a * x2 + movesBox->max->y);
         //get the distances
 
-        int distToPointSquared = pow(p.x - point.x, 2) + pow(p.y - point.y, 2);
-        if(((pow(p.x - p1.x, 2) + pow(p.y - p1.y, 2)) - distToPointSquared >= 0 ) ||
-            ((pow(p.x - p2.x, 2) + pow(p.y - p2.y, 2)) - distToPointSquared >= 0 )){
-            
+        float distToPointSquared = pow(p.x - point.x, 2) + pow(p.y - point.y, 2);
+        float dToP1 = (pow(p.x - p1.x, 2) + pow(p.y - p1.y, 2));
+        float dToP2 = (pow(p.x - p2.x, 2) + pow(p.y - p2.y, 2));
+        if((point.x >= p.x && distToPointSquared <= dToP1) || (point.x <= p.x && distToPointSquared <= dToP2)){
+            cout<<"im here";
         }
+
+    } else{
 
     }
     return 0;
