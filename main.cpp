@@ -123,12 +123,13 @@ int main() {
 
     int touches = 0;
     int timeLeft = time;
+    timeLeft -= 0;
     Vector2f * neededMove = new Vector2f(destOriginX, destOriginY);
     if(maxMove->x - neededMove->x >= 0 && maxMove->x*neededMove->x >= 0
         && maxMove->y - neededMove->y >= 0 && maxMove->y*neededMove->y >= 0){
         movesBox->changePos(neededMove);
         if(movesBox->pointBelongs(point)){
-            
+
         }
     }
     cout<<touches;
